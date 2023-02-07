@@ -24,8 +24,8 @@ font.set_size(12)
 def combine_multiple_expts(srcDir, output_file = None):
     """
     combine predicted results 
-    :para srcDir: str, the directory to store score files
-    :para output_file: str, output file name
+    :param srcDir: str, the directory to store score files
+    :param output_file: str, output file name
     """
     num = 0
     dfs = []
@@ -78,9 +78,9 @@ def combine_multiple_expts(srcDir, output_file = None):
 def combine_prediction_target(input_file, target_file, output_file = None):
     """
     combine predicted results and target value
-    :para input_file: str, the name of the predicted file
-    :para target_file: str, the name of the target file
-    :para output_file: str, output file name
+    :param input_file: str, the name of the predicted file
+    :param target_file: str, the name of the target file
+    :param output_file: str, output file name
     """
     # read files
     df_prediction = pd.read_csv(input_file, index_col = 0)
@@ -113,12 +113,12 @@ def get_recovery_rate(prediction_file, target_file, ratio_top_prediction_list, r
                       prediction_column_name_list = ['Ave_Score'], target_column_name = 'Label'):
     """
     Compute the recovery rate
-    :para prediction_file: str, the name of the prediction file
-    :para target_file: str, the name of the target file
-    :para ratio_top_prediction_list: list of floats, ratios of top scoring predicted compounds defined as predicted active
-    :para ratio_top_target_list: list of floats, ratios of top scoring target compounds defined as virtual hit compounds
-    :para prediction_column_name_list: list of strs, list of column names of the predicted scores used to compute recovery rate
-    :para target_column_name: str, column name of the target score used to compute recovery rate
+    :param prediction_file: str, the name of the prediction file
+    :param target_file: str, the name of the target file
+    :param ratio_top_prediction_list: list of floats, ratios of top scoring predicted compounds defined as predicted active
+    :param ratio_top_target_list: list of floats, ratios of top scoring target compounds defined as virtual hit compounds
+    :param prediction_column_name_list: list of strs, list of column names of the predicted scores used to compute recovery rate
+    :param target_column_name: str, column name of the target score used to compute recovery rate
     :return: np.matrix, recovery rate matrix
     """
     # read files
@@ -181,11 +181,11 @@ def get_active_learning_trainset(input_file, current_trainset, ratio_top_ave, ra
     """
     get active learning training set
     select the top uncertain compounds from the 'ratio_top_ave' top scoring compounds
-    :para input_file: str, input file name
-    :para current_trainset: str, input file name for current training set
-    :para ratio_top_ave: float, the ratio of the top scoring compounds to be selected
-    :para ratio_top_std: float, the ratio of the top uncertain compounds to be selected
-    :para ratio_random: flaot, the ratio of the random compounds to be selected
+    :param input_file: str, input file name
+    :param current_trainset: str, input file name for current training set
+    :param ratio_top_ave: float, the ratio of the top scoring compounds to be selected
+    :param ratio_top_std: float, the ratio of the top uncertain compounds to be selected
+    :param ratio_random: flaot, the ratio of the random compounds to be selected
     """
     # read files
     df_prediction = pd.read_csv(input_file, index_col = 0)
