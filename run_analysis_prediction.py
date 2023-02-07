@@ -9,7 +9,7 @@ Created on Mon Jun 13 17:32:47 2022
 import os, sys, warnings
 
 path_list = sys.path
-module_path = '/Users/guohan/Documents/Code/Regression_Analysis'
+module_path = '/Users/guohan/Documents/Codes/Regression_Analysis'
 if module_path not in sys.path:
     sys.path.append(module_path)
     print('Add module path')
