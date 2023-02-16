@@ -14,26 +14,20 @@ if module_path not in sys.path:
     sys.path.append(module_path)
     print('Add module path')
 
-import numpy as np
-import pandas as pd
-from analysis_prediction import *
+from main import *
 
 
 if __name__ == '__main__':
 
     ### Combine results ###
-    srcDir = 'test/prediction'
-    output_file = 'combination.csv'
-    combine_multiple_expts(srcDir, output_file)
-
-    input_file = 'test/combination.csv'
-    target_file = 'test/target.csv'
-    output_file = None
-    combine_prediction_target(input_file, target_file, output_file)
+    srcDir = 'tests/prediction'
+    input_file_target = 'tests/target.csv'
+    output_file = 'combination'
+    combine_multiple_expts(srcDir, input_file_target, output_file)
 
     ### Recovery rate ###
-    prediction_file = 'test/combination_target.csv'
-    target_file = 'test/target.csv'
+    prediction_file = 'tests/combination_target.csv'
+    target_file = 'tests/target.csv'
     ratio_top_prediction_list = [0.02, 0.04, 0.05, 0.10]
     ratio_top_target_list = [0.02, 0.04, 0.05, 0.10]
     prediction_column_name_list = ['a', 'expt0', 'expt1']

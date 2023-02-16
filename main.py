@@ -21,90 +21,65 @@ font.set_size(12)
 
 ### Combine results ###
 
-def combine_multiple_expts(srcDir, output_file = None):
+def combine_multiple_expts(srcDir, input_file_target = None, output_file = None):
     """
-    combine predicted results 
-    :param srcDir: str, the directory to store score files
+    combine predicted results and true labels
+    :param srcDir: str, directory path of predicted results
+    :param input_file_target: str, path of the file containing true labels
     :param output_file: str, output file name
+    :return: int, number of compounds
     """
     num = 0
+    expts = []  # experiment names
     dfs = []
-    expts = []
-    
+
     # read df
     files = os.listdir(srcDir)
     for file in files:
         if os.path.splitext(file)[1] != '.csv':
             continue
-        
+
         try:
             expt = os.path.splitext(file)[0]
-            file = os.path.join(srcDir, file)
-            df = pd.read_csv(file)
-            df = pd.DataFrame(df, columns = ['ID', 'Cleaned_SMILES', 'score'])
-            df.rename(columns = {'score': expt}, inplace = True)
-
-            print('{} is read'.format(expt))
-            print('number of rows ', df.shape[0])
-            dfs.append(df)
             expts.append(expt)
+            df = pd.read_csv(os.path.join(srcDir, file))
+            df = pd.DataFrame(df, columns=['ID', 'Cleaned_SMILES', 'score'])
+            df.rename(columns={'score': expt}, inplace=True)
+            dfs.append(df)
+            print('{} is read, number of rows: {}'.format(expt, df.shape[0]))
             num += 1
+
         except:
             pass
-        
+
     # output file
     folder, basename = os.path.split(os.path.abspath(srcDir))
     if output_file is None:
-        output_file = os.path.splitext(basename)[0] + '_combine.csv'
-    output_file = os.path.join(folder, output_file)
-    
-    # merge multiple dataframe
-    df_merge = reduce(lambda left, right: pd.merge(left, right, how = 'outer', on = ['ID', 'Cleaned_SMILES']), dfs)
+        output_file = basename
+    output_file = os.path.join(folder, os.path.splitext(output_file)[0])
+
+    # merge multiple experiments
+    df_merge = reduce(lambda left, right: pd.merge(left, right, how='outer', on=['ID', 'Cleaned_SMILES']), dfs)
     columns = ['ID', 'Cleaned_SMILES'] + sorted(expts)
-    df_merge = df_merge.reindex(columns, axis = 1)
-    
+    df_merge = df_merge.reindex(columns, axis=1)
+
     # compute average and std
-    df_merge['Ave_Score'] = df_merge.apply(lambda row: np.round(np.mean([row[expt] for expt in expts]), 16), axis = 1)
-    df_merge['Uncertainty'] = df_merge.apply(lambda row: np.round(np.std([row[expt] for expt in expts]), 15), axis = 1)
+    df_merge['Ave_Score'] = df_merge.apply(lambda row: np.round(np.mean([row[expt] for expt in expts]), 16), axis=1)
+    df_merge['Uncertainty'] = df_merge.apply(lambda row: np.round(np.std([row[expt] for expt in expts]), 15), axis=1)
+
+    # merge target labels
+    if input_file_target is not None:
+        df_target = pd.read_csv(input_file_target)
+        df_target = pd.DataFrame(df_target, columns=['ID', 'Cleaned_SMILES', 'Label'])
+        df_target.rename(columns={'ID': 'Training_set_ID', 'Label': 'True_Label'}, inplace=True)
+        df_merge = pd.merge(df_merge, df_target, how='left', on=['Cleaned_SMILES'])
     
-    # sort on scores
+    # write to file
     df_merge.sort_values(by = ['Ave_Score'], ascending = True, inplace = True)
-    
-    # write to file
     print('Number of rows in the output file:', df_merge.shape[0])
-    df_merge.to_csv(output_file)
+    df_merge.to_csv(output_file + f'_{df_merge.shape[0]}.csv')
 
-
-def combine_prediction_target(input_file, target_file, output_file = None):
-    """
-    combine predicted results and target value
-    :param input_file: str, the name of the predicted file
-    :param target_file: str, the name of the target file
-    :param output_file: str, output file name
-    """
-    # read files
-    df_prediction = pd.read_csv(input_file, index_col = 0)
-    df_target = pd.read_csv(target_file)
-    
-    # output file
-    folder, basename = os.path.split(os.path.abspath(input_file))
-    if output_file is None:
-        output_file = os.path.splitext(basename)[0] + '_target.csv'
-    output_file = os.path.join(folder, output_file)
-    
-    # change df_target column names
-    df_target = pd.DataFrame(df_target, columns = ['ID', 'Cleaned_SMILES', 'Label'])    
-    df_target.rename(columns = {'ID': 'Training_set_ID', 'Label': 'True_Label'}, inplace = True)
-    
-    # merge two dataframe
-    df = pd.merge(df_prediction, df_target, how = 'left', on = ['Cleaned_SMILES'])
-    
-    # sort on scores
-    df.sort_values(by = ['Ave_Score'], ascending = True, inplace = True)
-    
-    # write to file
-    print('Number of rows in the output file:', df.shape[0])
-    df.to_csv(output_file)
+    return df_merge.shape[0]
 
 
 ### Recovery rate ###
@@ -237,30 +212,26 @@ def get_active_learning_trainset(input_file, current_trainset, ratio_top_ave, ra
 if __name__ == '__main__':
     
     ### Combine results ###
-    # srcDir = 'test/prediction'
-    # output_file = 'combination.csv'
-    # combine_multiple_expts(srcDir, output_file)
-    #
-    # input_file = 'test/combination.csv'
-    # target_file = 'test/target.csv'
-    # output_file = None
-    # combine_prediction_target(input_file, target_file, output_file)
+    srcDir = 'tests/prediction'
+    input_file_target = 'tests/target.csv'
+    output_file = 'combination'
+    combine_multiple_expts(srcDir, input_file_target, output_file)
 
     ### Recovery rate ###
-    # prediction_file = 'test/combination_target.csv'
-    # target_file = 'test/target.csv'
-    # ratio_top_prediction_list = [0.02, 0.04, 0.05, 0.10]
-    # ratio_top_target_list = [0.02, 0.04, 0.05, 0.10]
-    # prediction_column_name_list = ['a', 'expt0', 'expt1']
-    # RR_matrix = get_recovery_rate(prediction_file, target_file, ratio_top_prediction_list, ratio_top_target_list, prediction_column_name_list)
+    prediction_file = 'tests/combination_116.csv'
+    target_file = 'tests/target.csv'
+    ratio_top_prediction_list = [0.02, 0.04, 0.05, 0.10]
+    ratio_top_target_list = [0.02, 0.04, 0.05, 0.10]
+    prediction_column_name_list = ['a', 'expt0', 'expt1']
+    RR_matrix = get_recovery_rate(prediction_file, target_file, ratio_top_prediction_list, ratio_top_target_list, prediction_column_name_list)
 
     # write recovery rate to .csv output_file
-    # df = pd.DataFrame(dict(zip(prediction_column_name_list, RR_matrix)))
-    # df.to_csv('Recovery_rate.csv')
+    df = pd.DataFrame(dict(zip(prediction_column_name_list, RR_matrix)))
+    df.to_csv('Recovery_rate.csv')
 
     ### Select data based on rules ###
-    input_file = 'test/test_get_trainset.csv'
-    current_trainset = 'test/target.csv'
+    input_file = 'tests/test_get_trainset.csv'
+    current_trainset = 'tests/target.csv'
     ratio_top_ave = 0.1
     ratio_top_std = 0.05
     ratio_random = 0.01
