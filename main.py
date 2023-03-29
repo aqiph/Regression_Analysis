@@ -26,7 +26,7 @@ def combine_multiple_expts(srcDir, input_file_target = None, output_file = None)
     combine predicted results and true labels
     :param srcDir: str, directory path of predicted results
     :param input_file_target: str, path of the file containing true labels
-    :param output_file: str, output file name
+    :param output_file: str, name of the output file
     :return: int, number of compounds
     """
     num = 0
