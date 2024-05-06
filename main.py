@@ -156,7 +156,7 @@ def get_active_learning_trainset(input_file, current_trainset, ratio_top_ave, ra
     """
     get active learning training set
     select the top uncertain compounds from the 'ratio_top_ave' top scoring compounds
-    :param input_file: str, input file name
+    :param input_file: str, path of the input file
     :param current_trainset: str, input file name for current training set
     :param ratio_top_ave: float, the ratio of the top scoring compounds to be selected
     :param ratio_top_std: float, the ratio of the top uncertain compounds to be selected
