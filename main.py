@@ -222,7 +222,7 @@ if __name__ == '__main__':
     target_file = 'tests/target.csv'
     ratio_top_prediction_list = [0.02, 0.04, 0.05, 0.10]
     ratio_top_target_list = [0.02, 0.04, 0.05, 0.10]
-    prediction_column_name_list = ['a', 'expt0', 'expt1']
+    prediction_column_name_list = ['expt0', 'expt1']
     RR_matrix = get_recovery_rate(prediction_file, target_file, ratio_top_prediction_list, ratio_top_target_list, prediction_column_name_list)
 
     # write recovery rate to .csv output_file
